@@ -1,0 +1,95 @@
+#
+#   GRAMMAR ON BNF FOR pyefficient
+#
+#    File: Grammar.bnf
+#    Date: Oct 30 - 2014 - 14:24 GMT-5
+#    Location: Manizales, Caldas - Colombia
+#    Author: Juan Camilo Castaño Serna
+#    Description: This file has a BNF grammar definition
+#       for pyefficient module.
+#
+
+#   Comentarios
+<expresion_comentario> :: <expresiones> | <texto>
+
+#   Sintaxis operadores boleanos:
+<operadores_booleanos> : "and" | "or" | "not"
+
+#   Sintaxis valores boleanos
+<valores_booleanos> : "T" | "F"
+
+#   Sintaxis operadores relacionales
+<operadores_relacionales> : "<" | ">" | "<=" | ">=" | "=" | "!="
+
+#   Sintaxis operadores matematicos
+<operadores_matematicos>: "+" | "*" | "/" | "-" | "mod" | "div" | "up" | "down"
+
+#   Ciclo for
+<ciclo_for> : "for" (<variable> | <variable> "<-"  numero) "to" (  numero | rango ) "do"
+            "begin"
+                <expresiones>
+            "end"
+
+#   Ciclo while
+ciclo_while: "while" (<expresion_condicional>)  "do"
+            "begin"
+                <expresiones>
+            "end"
+
+#   Ciclo repeat
+<ciclo_repeat> : "repeat"
+                <expresiones>
+            "until" (expresiones <condicionales>)
+
+#   Sentencia if
+sentencia_if: "if" (<expresion_condicional>) "then"
+                "begin"
+                    <expresiones>
+                "end"
+            [
+            "else if" (<expresion_condicional>) "then"
+                "begin"
+                    <expresiones>
+                "end"
+
+            "else"
+                "begin"
+                    <expresiones>
+                "end"
+            ]
+
+#   Sentencia asignacion
+<sentencia_asignacion> : <variable> "<-" ( <expresiones> | <termino> |<variable>)
+
+#   Sentencia arreglos
+<sentencia_arreglos> : <termino_v> "[" <numero> "]"
+
+#   Sentencia subarreglos
+<sentencia_subarreglos> : <termino_v> "[" <numero> ".." <numero> "]"
+
+#   Sentencia tamano_arreglo
+<sentencia_tamano_arreglo> : "len(" <termino_v> ")"
+
+#   Sentencia clases
+<sentencia_clases>: "class" <nombre_clase> "{"
+                <atributos en camelCase>
+            "}"
+
+#   Sentencia objetos
+<sentencia_objetos> : <nombre_clase> <nombre_objeto (termino | variable)>
+
+#   Sentencia acceso_datos
+<sentencia_acceso_datos> : <nombre_objeto> "." <atributo>
+
+#   Sentencia apuntadores:
+<sentencia_apuntadores> :
+    <objeto_puntero> "<-" "NULL"
+
+#   Sentencia subrutinas:
+<sentencia_subrutinas> : <nombre_subrutinas> "("[<termino> | <arreglo> "["numero"]" .. "["numero"]" | <nombre_clase> <nombre_objeto>")"
+        "begin"
+            <expresiones>
+        "end"
+
+#   sentencia_llamado_subrutinas:
+"call" <nombre_subrutinas>"("[<termino> | <arreglo> "["numero"]" .. "["numero"]" | <nombre_clase> <nombre_objeto>]")"
