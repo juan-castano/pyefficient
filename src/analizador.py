@@ -71,6 +71,21 @@ class Analizador(object):
         t.value = self.reserved.get(t.value, 'NAME')
         return t
 
+    """
+    def t_ITEMID(self, t):
+        t.type = self.reserved.get(t.value, 'ITEMID')
+        if t.type == 'ITEMID':
+            tval = self.names.get(t.value, '')
+            if tval == '':
+                self.t_error(t)
+            else:
+                t.value = tval
+        return t
+    """
+
+    # def t_BOOLEAN(self, t):
+
+
     def t_newline(self, t):
         r'\n+'
         t.lexer.lineno += t.value.count("\n")
@@ -126,12 +141,16 @@ class Analizador(object):
         """ expression : NUMBER """
         p[0] = p[1]
 
+    '''
+    def p_expression_boolean(self, p):
+        """ expression :  """
+    '''
     def p_expression_grouping(self, p):
         """ expression : '(' expression ')'
                         | '[' expression ']' """
         p[0] = p[2]
 
-    def p_expression_boolean(self, p):
+    def p_expression_comparision(self, p):
         """ expression : expression '<' expression
                         | expression '>' expression
                         | expression LESSTHQ expression
