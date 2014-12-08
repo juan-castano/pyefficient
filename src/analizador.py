@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
+
 import ply.lex as lex
 import ply.yacc as yacc
 from ply.lex import TOKEN
@@ -25,14 +27,26 @@ class Analizador(object):
 
             except (EOFError):
                 continue
+            except (KeyboardInterrupt):
+                print("\nSaliendo...\n")
+                sys.exit()
 
+    reserved = {
+        'and': 'AND',
+        'or': 'OR',
+        'True': 'T',
+        'False': 'F',
+        'not': 'NOT',
+    }
 
+    tokens = ['NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NONEQ', 'ASIGN']
 
-    tokens = ['NUMBER', 'NAME',]
+    literals = ['+', '-', '*', '/', '(', ')', '[', ']', '<', '>']
 
-    literals = ['+', '-', '*', '/', '(', ')', '[', ']']
-
-    # t_PLUS = r'\+'
+    t_ASIGN = '<-'
+    t_LESSTHQ = r'<='
+    t_GREATTHQ = r'>='
+    t_NONEQ = r'!='
 
     t_ignore = ' \t'
 
@@ -41,7 +55,7 @@ class Analizador(object):
 
     # NAMES AND STRING
     nondigit = r'([a-z])'
-    strings = r'(' + nondigit + ')+'
+    strings = r'(' + nondigit + ')+' + r'(' + nondigit + ')*'
 
     @TOKEN(numbers)
     def t_NUMBER(self, t):
@@ -52,7 +66,7 @@ class Analizador(object):
             print("No se puede convertir")
         return t
 
-    @TOKEN(nondigit)
+    @TOKEN(strings)
     def t_NAME(self, t):
         t.value = self.reserved.get(t.value, 'NAME')
         return t
@@ -67,13 +81,24 @@ class Analizador(object):
 
 
     precedence = (
-        ('left', '+'),
+        ('nonassoc', '<', '>', 'LESSTHQ', 'GREATTHQ'),
+        ('left', '+', '-', '*', '/'),
+        ('right', 'UMINUS'),
     )
 
+    names = { }
 
     def p_statement(self, p):
         """ statement : expression """
         p[0] = p[1]
+        # print(p[1])
+
+    def p_expression_asign(self, p):
+        """ expression : NAME ASIGN expression """
+        if (p[2] == '<-'):
+            self.names[p[1]] = p[3]
+        else:
+            print("No existe el simbolo, no se puede asignar")
 
     def p_expression_binop(self, p):
         """ expression : expression '+' expression
@@ -106,5 +131,29 @@ class Analizador(object):
                         | '[' expression ']' """
         p[0] = p[2]
 
+    def p_expression_boolean(self, p):
+        """ expression : expression '<' expression
+                        | expression '>' expression
+                        | expression LESSTHQ expression
+                        | expression GREATTHQ expression
+                        | expression NONEQ expression """
+
+        if (p[2] == '<'):
+            p[0] = p[1] < p[3]
+        elif (p[2] == '>'):
+            p[0] = p[1] > p[3]
+        elif (p[2] == '<='):
+            p[0] = p[1] <= p[3]
+        elif (p[2] == '>='):
+            p[0] = p[1] < p[3]
+
+    def p_expression_uminus(self, p):
+        """ expression : "-" expression %prec UMINUS """
+        p[0] = -p[2]
+
+
     def p_error(self, p):
-        print("Expresion Ilegal")
+        if (p):
+            print ("Syntax error at '%s'" % (p.value))
+        else:
+            print ("Syntax error at EOF")
