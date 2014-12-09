@@ -11,7 +11,12 @@ E.g. Pseudocode, Pascal, etc.
 ### Summary ###
 In few words, this module allows you to calculate the algorithm efficiency in terms of:
 Omega function, Tetha function, Rho functions and so on.
- 
+
+### Install ###
+You will can see how to install pyefficient in [THIS](https://github.com/juan-castano/pyefficient/blob/master/INSTALL.md) page!
+
+
+
 >Author: [@juan-castano] (http://github.com/juan-castano) // GitHub
 
 >Date: Oct 18th - 2014.
