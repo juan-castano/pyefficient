@@ -7,11 +7,12 @@ Need install:
 - easygui
 - PyQt4
 - PLY
+- matplotlib
+- numpy
+- scipy (optional)
 
 You can use:
 ```
-#!python
-
 pip3 install package_name
 ```
 
