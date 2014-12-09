@@ -13,6 +13,8 @@ In few words, this module allows you to calculate the algorithm efficiency in te
 Omega function, Tetha function, Rho functions and so on.
  
 >Author: [@juan-castano] (http://github.com/juan-castano) // GitHub
+
 >Date: Oct 18th - 2014.
+
 >Location: Manizales, Colombia.
 
