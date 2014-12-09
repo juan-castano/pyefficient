@@ -47,6 +47,7 @@ class MainWindow(object):
 
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
         MainWindow.resize(640, 480)
+        MainWindow.move(200, 80)
 
         # Widget Principal
         self.centralwidget = QtGui.QWidget(MainWindow)
@@ -82,23 +83,29 @@ class MainWindow(object):
         self.limpiarTextoButton.setGeometry(QtCore.QRect(260, 400, 80, 24))
         self.limpiarTextoButton.setObjectName(_fromUtf8("limpiarTextoButton"))
 
-        # Widget Barra de Edicion
+        # Toolbar
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 640, 21))
         self.menubar.setObjectName(_fromUtf8("menubar"))
         self.menuArchivo = QtGui.QMenu(self.menubar)
         self.menuArchivo.setObjectName(_fromUtf8("menuArchivo"))
+
+        # Barra de Estado
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
-        self.statusbar.showMessage("Listo")
+        #self.statusbar.showMessage("Listo")
+        self.statusbar.showMessage(str(QtGui.QDesktopWidget().screenGeometry()))
+
         MainWindow.setStatusBar(self.statusbar)
         self.actionAbrir_archivo = QtGui.QAction(MainWindow)
         self.actionAbrir_archivo.setObjectName(_fromUtf8("actionAbrir_archivo"))
         self.actionSalir = QtGui.QAction(MainWindow)
         self.actionSalir.setObjectName(_fromUtf8("actionSalir"))
         self.menuArchivo.addAction(self.actionAbrir_archivo)
+
+        # Separador
         self.menuArchivo.addSeparator()
         self.menuArchivo.addAction(self.actionSalir)
         self.menubar.addAction(self.menuArchivo.menuAction())
@@ -139,7 +146,7 @@ class MainWindow(object):
         archivo = objArchivo.loadFile()
 
         if (archivo is None):
-            gui.msgbox(title="Error", msg="Error al tratar de abrir el archivo: " + archivo)
+            gui.msgbox(title="Error", msg="Error al tratar de abrir el archivo: " + str(archivo))
         else:
             self.plainTextEdit.setPlainText(archivo.read())
         print("Mostrando archivo...")

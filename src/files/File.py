@@ -12,13 +12,15 @@
 import os
 import sys
 
-import easygui as gui
+# import easygui as gui
 
-class File:
+from PyQt4 import QtGui, QtCore
+
+class File(QtGui.QMainWindow):
 
     def __init__(self):
         """ Function doc"""
-        pass
+        QtGui.QMainWindow.__init__(self)
 
     def loadFile(self):
         """
@@ -29,10 +31,10 @@ class File:
         """
 
         print("Cargando archivo...")
-        extensiones = ['*.py', '*.txt']
-        archivo = gui.fileopenbox(title="Abrir Algoritmo",filetypes=extensiones)
 
         try:
+            archivo = QtGui.QFileDialog.getOpenFileName(self, 'Abrir Algoritmo', '/home/juan')
+            print (archivo)
             archivo = open(archivo, 'r')
             return archivo
         except (FileExistsError, FileNotFoundError):
