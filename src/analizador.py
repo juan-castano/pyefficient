@@ -34,19 +34,21 @@ class Analizador(object):
     reserved = {
         'and': 'AND',
         'or': 'OR',
-        'True': 'T',
-        'False': 'F',
+        'T': 'T',
+        'F': 'F',
         'not': 'NOT',
     }
 
-    tokens = ['NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NONEQ', 'ASIGN']
+    tokens = ['NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NOTEQ', 'ASIGN']
+
+    tokens = tokens + list(reserved.values())
 
     literals = ['+', '-', '*', '/', '(', ')', '[', ']', '<', '>']
 
-    t_ASIGN = '<-'
+    t_ASIGN = r'<-'
     t_LESSTHQ = r'<='
     t_GREATTHQ = r'>='
-    t_NONEQ = r'!='
+    t_NOTEQ = r'!='
 
     t_ignore = ' \t'
 
@@ -69,6 +71,15 @@ class Analizador(object):
     @TOKEN(strings)
     def t_NAME(self, t):
         t.value = self.reserved.get(t.value, 'NAME')
+
+        if t.type == 'NAME':
+            tval = self.names.get(t.value, '')
+
+            if tval == '':
+                self.t_error(t)
+            else:
+                t.value = tval
+
         return t
 
     """
@@ -96,7 +107,7 @@ class Analizador(object):
 
 
     precedence = (
-        ('nonassoc', '<', '>', 'LESSTHQ', 'GREATTHQ'),
+        ('nonassoc', '<', '>', 'LESSTHQ', 'GREATTHQ', 'NOTEQ'),
         ('left', '+', '-', '*', '/'),
         ('right', 'UMINUS'),
     )
@@ -108,12 +119,26 @@ class Analizador(object):
         p[0] = p[1]
         # print(p[1])
 
-    def p_expression_asign(self, p):
-        """ expression : NAME ASIGN expression """
-        if (p[2] == '<-'):
+    def p_statement_asign(self, p):
+        """ statement : NAME ASIGN expression """
+        # "self.names[p[1]] = p[3]
+        # print("Asignando...")
+        self.names[p[1]] = p[3]
+
+    def p_expression_name(self, p):
+        "expression : NAME"
+        try:
+            p[0] = self.names[p[1]]
+        except LookupError:
+            print("Undefined name '%s'" % p[1])
+            p[0] = 0
+
+
+        """if (p[2] == '<-'):
             self.names[p[1]] = p[3]
         else:
             print("No existe el simbolo, no se puede asignar")
+        """
 
     def p_expression_binop(self, p):
         """ expression : expression '+' expression
@@ -155,7 +180,7 @@ class Analizador(object):
                         | expression '>' expression
                         | expression LESSTHQ expression
                         | expression GREATTHQ expression
-                        | expression NONEQ expression """
+                        | expression NOTEQ expression """
 
         if (p[2] == '<'):
             p[0] = p[1] < p[3]
@@ -165,6 +190,8 @@ class Analizador(object):
             p[0] = p[1] <= p[3]
         elif (p[2] == '>='):
             p[0] = p[1] < p[3]
+        elif (p[2] == '!='):
+            p[0] = p[1] != p[3]
 
     def p_expression_uminus(self, p):
         """ expression : "-" expression %prec UMINUS """

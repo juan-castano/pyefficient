@@ -12,6 +12,7 @@
 import os
 import sys
 
+import easygui as gui
 
 class File:
 
@@ -19,7 +20,7 @@ class File:
         """ Function doc"""
         pass
 
-    def loadFile(self, dirFile):
+    def loadFile(self):
         """
         Load a route from indicated file and return
         a File object
@@ -27,14 +28,14 @@ class File:
         @return: File object
         """
 
+        print("Cargando archivo...")
+        extensiones = ['*.py', '*.txt']
+        archivo = gui.fileopenbox(title="Abrir Algoritmo",filetypes=extensiones)
+
         try:
-            if (os.path.exists(dirFile)):
-                fileInput = open(dirFile)
-                return fileInput
-            else:
-                print("El archivo '%s' NO existe.\n"
-                    % (dirFile.split('/')[-1]))
-        except (TypeError):
-            print("Error al cargar el archivo %s\n"
-                % (dirFile.split('/')[-1]))
+            archivo = open(archivo, 'r')
+            return archivo
+        except (FileExistsError, FileNotFoundError):
+            return None
+
 
