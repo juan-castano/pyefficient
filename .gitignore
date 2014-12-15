@@ -59,3 +59,7 @@ target/
 # Rules Files Generated
 parser.out
 parsetab.py
+
+
+.project
+.pydevproject

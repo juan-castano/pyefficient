@@ -15,10 +15,43 @@ class Analizador(object):
 
     def test(self):
         print("Analizador\n")
+        try:
+            """s = input('dato > ')"""
+            s = """def asdffuncion () 
+                begin
+                34+3
+                num <- 34
+                end"""
 
+            if (not s):
+                # continue
+                print("No es un character")
+
+            print(s)
+            result = self.parser.parse(s)
+            print(result)
+        except (EOFError):
+            # continue
+            print("Fin de línea")
+        except (KeyboardInterrupt):
+            print("\nSaliendo...\n")
+            sys.exit()
+
+        print(self.funciones)
+        print(self.names)
+        print(self.clases)
+
+        '''
         while True:
             try:
-                s = input('dato > ')
+                """s = input('dato > ')"""
+
+                s = """def funcion()
+                    begin
+                    34+3
+                    end"""
+
+
 
                 if (not s):
                     continue
@@ -30,20 +63,41 @@ class Analizador(object):
             except (KeyboardInterrupt):
                 print("\nSaliendo...\n")
                 sys.exit()
+        '''
+
 
     reserved = {
         'and': 'AND',
         'or': 'OR',
-        'T': 'T',
-        'F': 'F',
+        'True': 'T',
+        'False': 'F',
         'not': 'NOT',
+        'for': 'FOR',
+        'while': 'WHILE',
+        'class': 'CLASS',
+        'if': 'IF',
+        'else': 'ELSE',
     }
 
-    tokens = ['NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NOTEQ', 'ASIGN']
+    """
 
-    tokens = tokens + list(reserved.values())
+    keywords = (
 
-    literals = ['+', '-', '*', '/', '(', ')', '[', ']', '<', '>']
+    )
+    """
+
+    tokens = (
+        'NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NOTEQ', 'ASIGN',
+        'CALL', 'REPEAT', 'DEF', 'BEGIN', 'END', 'TO', 'DO', 'UNTIL', 
+        'THEN',
+    )
+
+    tokens = tokens + tuple(reserved.values())
+    # tokens = tokens + keywords
+
+    # tokens = keywords + tokens
+
+    literals = ['+', '-', '*', '/', '(', ')', '[', ']', '<', '>', ':']
 
     t_ASIGN = r'<-'
     t_LESSTHQ = r'<='
@@ -56,30 +110,36 @@ class Analizador(object):
     numbers = r'(\d+(\.\d*)?|\.\d+)'
 
     # NAMES AND STRING
-    nondigit = r'([a-z])'
+    nondigit = r'([a-zA-Z_])'
+    # strings = r'(' + nondigit + ')+' + r'(' + nondigit + ')*'
+    # strings = r'[a-zA-Z_][a-zA-Z0-9_]*'
     strings = r'(' + nondigit + ')+' + r'(' + nondigit + ')*'
 
     @TOKEN(numbers)
     def t_NUMBER(self, t):
         # r"""(\d+(\.\d*)?|\.\d+)"""
+        # print("Number")
         try:
             t.value = float(t.value)
         except:
             print("No se puede convertir")
         return t
 
-    @TOKEN(strings)
+    # @TOKEN(strings)
     def t_NAME(self, t):
-        t.value = self.reserved.get(t.value, 'NAME')
+        r'[a-zA-Z_][a-zA-Z0-9_]*'
+        t.type = self.reserved.get(t.value, "NAME")
 
-        if t.type == 'NAME':
-            tval = self.names.get(t.value, '')
 
-            if tval == '':
-                self.t_error(t)
-            else:
-                t.value = tval
+        if t not in self.tokens:
+            self.names[t] = t.value
 
+        """
+        if t.value in self.keywords:
+            t.type = t.value
+        else:
+            self.funciones.append(t.value)
+        """
         return t
 
     """
@@ -99,10 +159,11 @@ class Analizador(object):
 
     def t_newline(self, t):
         r'\n+'
+        # print("Nueva linea")
         t.lexer.lineno += t.value.count("\n")
 
     def t_error(self, t):
-        print("Illegal character '%s'" % t.value[0])
+        # print("Illegal character '%s'" % t.value[0])
         t.lexer.skip(1)
 
 
@@ -112,21 +173,34 @@ class Analizador(object):
         ('right', 'UMINUS'),
     )
 
+    """ DIccionarios, Tuplas y Miscelaneos """
+
     names = { }
+    clases = [ ]
+    funciones = [ ]
+
+    peor_caso = { }
+    mejor_caso = { }
+
 
     def p_statement(self, p):
-        """ statement : expression """
+        """ statement : expression
+                    | stmnt """
+        # print("Expression")
         p[0] = p[1]
         # print(p[1])
 
-    def p_statement_asign(self, p):
+    def p_statemnt_asign(self, p):
         """ statement : NAME ASIGN expression """
         # "self.names[p[1]] = p[3]
         # print("Asignando...")
+        # print("Asignacion")
         self.names[p[1]] = p[3]
+        return ''
 
     def p_expression_name(self, p):
         "expression : NAME"
+        # print("Exp Name")
         try:
             p[0] = self.names[p[1]]
         except LookupError:
@@ -146,6 +220,7 @@ class Analizador(object):
                         | expression '*' expression
                         | expression '/' expression """
 
+        # print("Exp binop")
         if (p[2] == '+'):
             p[0] = p[1] + p[3]
         elif (p[2] == '-'):
@@ -164,24 +239,28 @@ class Analizador(object):
 
     def p_expression_number(self, p):
         """ expression : NUMBER """
+        # print("Exp Number")
         p[0] = p[1]
 
-    '''
-    def p_expression_boolean(self, p):
-        """ expression :  """
-    '''
     def p_expression_grouping(self, p):
-        """ expression : '(' expression ')'
-                        | '[' expression ']' """
+        """ expression_grouping : '(' expression ')'
+                        | '[' expression ']' 
+                        | '(' empty ')' """
+        print("Exp grouping")
         p[0] = p[2]
 
-    def p_expression_comparision(self, p):
+
+    def p_empty(self, p):
+        """ empty : """
+        pass
+
+    def p_expression_comparission(self, p):
         """ expression : expression '<' expression
                         | expression '>' expression
                         | expression LESSTHQ expression
                         | expression GREATTHQ expression
                         | expression NOTEQ expression """
-
+        # print("Exp comparission")
         if (p[2] == '<'):
             p[0] = p[1] < p[3]
         elif (p[2] == '>'):
@@ -195,11 +274,89 @@ class Analizador(object):
 
     def p_expression_uminus(self, p):
         """ expression : "-" expression %prec UMINUS """
+        # print("Exp uminus")
         p[0] = -p[2]
 
+    def p_expression_boolean(self, p):
+        """ expression_boolean : expression OR expression
+                        | expression AND expression """
+        # print("Exp Bool")
+        oper = p[2];
+        eval_str = "" % (p[1], oper, p[3])
+        p[0] = eval(eval_str)
+
+    def p_stmnt_block(self, p):
+        """ stmnt_block : BEGIN expression END """
+
+        print("block")
+        pass
+
+
+    def p_stmnt_class(self, p):
+        """ stmnt : CLASS NAME stmnt_block """
+        print("class")
+        pass
+
+
+    cant_sentencia_for = 0
+    def p_stmnt_for(self, p):
+        """ stmnt : FOR NAME TO NUMBER DO stmnt_block """
+        print("class")
+        self.cant_sentencia_for += 1
+        peor_caso['for'+self.cant_sentencia_for] = 'n'
+        mejor_caso['for'+self.cant_sentencia_for] = '1'
+        pass
+
+
+    cant_sentencia_while = 0
+    def p_stmnt_while(self, p):
+        """ stmnt : WHILE '(' expression_boolean ')' DO stmnt_block """
+        print("class")
+        pass
+
+    def p_stmnt_repeat(self, p):
+        """ stmnt : REPEAT stmnt_block UNTIL '(' expression_boolean ')' """
+        print("class")
+        pass
+
+    def p_stmnt_if(self, p):
+        """ stmnt : IF '(' expression_boolean ')' THEN stmnt_block
+                        |  IF '(' expression_boolean ')' THEN stmnt_block ELSE stmnt_block """
+        print("class")
+        pass
+
+    def p_stmnt_call(self, p):
+        """ stmnt : CALL NAME '(' expression ')' """
+        print("class")
+        pass
+
+    def p_stmnt_subrutine(self, p):
+        """ stmnt : NAME '(' expression ')'  stmnt_block"""
+        print("class")
+        pass
+
+    def p_stmnt_access_atributte(self, p):
+        """ """
+        print("class")
+        pass
+
+    
+    def p_expression_if(self, p):
+        """ stmnt : IF expression ':' expression
+                        | IF expression ':' expression ELSE expression """
+        print("if expression")
+        pass
+
+
+    def p_stmnt_def(self, p):
+        """ stmnt : DEF NAME expression_grouping stmnt_block """
+        print("def function")
+        # p[0] = ('DEF', p[2], p[3])
+        pass
 
     def p_error(self, p):
         if (p):
             print ("Syntax error at '%s'" % (p.value))
+            print(p.lexpos)
         else:
             print ("Syntax error at EOF")

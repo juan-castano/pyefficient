@@ -147,6 +147,7 @@ class MainWindow(object):
 
         if (archivo is None):
             gui.msgbox(title="Error", msg="Error al tratar de abrir el archivo: " + str(archivo))
+            QDialog
         else:
             self.plainTextEdit.setPlainText(archivo.read())
         print("Mostrando archivo...")
