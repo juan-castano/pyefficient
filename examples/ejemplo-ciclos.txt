@@ -1,0 +1,16 @@
+algoritmo ordenamiento(int a[])
+begin
+	
+	for i<-1 to n do
+		begin
+			for j<-1 to n-1 do
+			begin
+				if (a[j] > a[j+1])
+				begin
+					swap(a[j], a[j+1])
+				end
+			end
+
+		end
+
+end

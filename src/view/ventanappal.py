@@ -157,7 +157,7 @@ class MainWindow(object):
             self.plainTextEdit.setPlainText(archivo.read())
         print("Mostrando archivo...")
 
-        self.analizarArchivo(archivo)
+        # self.analizarArchivo(archivo)
 
 
     def analizarArchivo(self, archivo):
@@ -169,4 +169,22 @@ class MainWindow(object):
         texto = self.plainTextEdit.toPlainText()
 
         analizador = Analizador()
-        analizador.test(texto)
+        diccionario_mejor, diccionario_peor = analizador.test(texto)
+
+
+        archivo = open("/home/juan/historial.txt", 'a')
+
+        if archivo:
+            archivo.write("Mejor caso: " + str(diccionario_mejor))
+            archivo.write("Peor caso: " + str(diccionario_peor))
+        else:
+            archivo.write("Prueba")
+
+
+        archivo.close()
+
+
+        gui.msgbox(title="Error", msg="Mejor caso: "+ str(diccionario_mejor.values()))
+        gui.msgbox(title="Error", msg="Peor caso: "+ str(diccionario_peor.values()))
+
+

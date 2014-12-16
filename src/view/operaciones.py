@@ -11,7 +11,8 @@ class Operaciones(object):
 
     def graficar(self, ecuacion=None):
         x = arange(0,10,0.1)
-        y = 2*sin(4*x)-x**2+10*x
+        # y = 2*sin(4*x)-x**2+10*x
+        y = 2*x
         # y = object(ecuacion)
         plot.plot(x,y)
         plot.show()

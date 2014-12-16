@@ -68,7 +68,9 @@ class Analizador(object):
         print("Mejor caso")
         print(self.mejor_caso)
 
-        
+        return self.mejor_caso, self.peor_caso
+
+
         
 
         '''
