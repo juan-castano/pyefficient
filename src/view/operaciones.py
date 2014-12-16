@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
+from numpy import *
 import matplotlib.pyplot as plot
-
 
 class Operaciones(object):
 
     def __init__(self):
         pass
 
-    def graficar(self):
-        x = np.arange(0,10,0.1)
-        y = 2*np.sin(4*x)-x**2+10*x
+    def graficar(self, ecuacion=None):
+        x = arange(0,10,0.1)
+        y = 2*sin(4*x)-x**2+10*x
+        # y = object(ecuacion)
         plot.plot(x,y)
         plot.show()
 

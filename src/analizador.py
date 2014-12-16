@@ -13,16 +13,12 @@ class Analizador(object):
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
 
-    def test(self):
+    def test(self, archivo):
         print("Analizador\n")
-        try:
-            """s = input('dato > ')"""
-            s = """def asdffuncion () 
-                begin
-                34+3
-                num <- 34
-                end"""
 
+        try:
+
+            s = archivo
             if (not s):
                 # continue
                 print("No es un character")
@@ -37,9 +33,17 @@ class Analizador(object):
             print("\nSaliendo...\n")
             sys.exit()
 
+        diccionario = { }
+        diccionario['funciones'] = self.funciones
+        diccionario['names'] = self.names
+        diccionario['clases'] = self.clases
+
         print(self.funciones)
         print(self.names)
         print(self.clases)
+
+        print(self.peor_caso)
+        print(self.mejor_caso)
 
         '''
         while True:
@@ -88,7 +92,7 @@ class Analizador(object):
 
     tokens = (
         'NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NOTEQ', 'ASIGN',
-        'CALL', 'REPEAT', 'DEF', 'BEGIN', 'END', 'TO', 'DO', 'UNTIL', 
+        'CALL', 'REPEAT', 'def', 'begin', 'end', 'TO', 'DO', 'UNTIL',
         'THEN',
     )
 
@@ -129,18 +133,8 @@ class Analizador(object):
     def t_NAME(self, t):
         r'[a-zA-Z_][a-zA-Z0-9_]*'
         t.type = self.reserved.get(t.value, "NAME")
-
-
-        if t not in self.tokens:
-            self.names[t] = t.value
-
-        """
-        if t.value in self.keywords:
-            t.type = t.value
-        else:
-            self.funciones.append(t.value)
-        """
         return t
+
 
     """
     def t_ITEMID(self, t):
@@ -286,7 +280,7 @@ class Analizador(object):
         p[0] = eval(eval_str)
 
     def p_stmnt_block(self, p):
-        """ stmnt_block : BEGIN expression END """
+        """ stmnt_block : begin expression end """
 
         print("block")
         pass
@@ -301,58 +295,63 @@ class Analizador(object):
     cant_sentencia_for = 0
     def p_stmnt_for(self, p):
         """ stmnt : FOR NAME TO NUMBER DO stmnt_block """
-        print("class")
+        print("for")
         self.cant_sentencia_for += 1
-        peor_caso['for'+self.cant_sentencia_for] = 'n'
-        mejor_caso['for'+self.cant_sentencia_for] = '1'
-        pass
+        self.peor_caso['for'+self.cant_sentencia_for] = 'n'
+        self.mejor_caso['for'+self.cant_sentencia_for] = 'n'
+
 
 
     cant_sentencia_while = 0
     def p_stmnt_while(self, p):
         """ stmnt : WHILE '(' expression_boolean ')' DO stmnt_block """
-        print("class")
-        pass
+        print("while")
+        self.cant_sentencia_while += 1
+        self.peor_caso['while'+self.cant_sentencia_while] = 'n'
+        self.mejor_caso['while'+self.cant_sentencia_while] = '1'
 
+
+    cant_sentencia_repeat = 0
     def p_stmnt_repeat(self, p):
         """ stmnt : REPEAT stmnt_block UNTIL '(' expression_boolean ')' """
-        print("class")
-        pass
+        print("repeat")
+        self.peor_caso['repeat'+self.cant_sentencia_repeat] = 'n'
+        self.mejor_caso['repeat'+self.cant_sentencia_repeat] = '1'
 
     def p_stmnt_if(self, p):
         """ stmnt : IF '(' expression_boolean ')' THEN stmnt_block
                         |  IF '(' expression_boolean ')' THEN stmnt_block ELSE stmnt_block """
-        print("class")
-        pass
+        print("if")
+
 
     def p_stmnt_call(self, p):
         """ stmnt : CALL NAME '(' expression ')' """
-        print("class")
-        pass
+        print("call")
+
 
     def p_stmnt_subrutine(self, p):
         """ stmnt : NAME '(' expression ')'  stmnt_block"""
-        print("class")
-        pass
+        print("subrutine")
+
 
     def p_stmnt_access_atributte(self, p):
         """ """
-        print("class")
-        pass
+        print("attibutte")
 
-    
+
+    """
     def p_expression_if(self, p):
-        """ stmnt : IF expression ':' expression
-                        | IF expression ':' expression ELSE expression """
+         stmnt : IF expression ':' expression
+                        | IF expression ':' expression ELSE expression
         print("if expression")
-        pass
+    """
 
 
     def p_stmnt_def(self, p):
-        """ stmnt : DEF NAME expression_grouping stmnt_block """
+        """ stmnt : def NAME expression_grouping stmnt_block """
         print("def function")
-        # p[0] = ('DEF', p[2], p[3])
-        pass
+
+
 
     def p_error(self, p):
         if (p):

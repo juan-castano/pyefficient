@@ -23,7 +23,7 @@ import easygui as gui
 
 from operaciones import Operaciones
 from files.File import File
-
+from analizador import Analizador
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -75,8 +75,12 @@ class MainWindow(object):
 
         # Boton 'analizar'
         self.pushButton_2 = QtGui.QPushButton(self.centralwidget)
-        self.pushButton_2.setGeometry(QtCore.QRect(380, 400, 77, 24))
+        self.pushButton_2.setGeometry(QtCore.QRect(380, 400, 100, 24))
         self.pushButton_2.setObjectName(_fromUtf8("pushButton_2"))
+
+        self.pushButton_3 = QtGui.QPushButton(self.centralwidget)
+        self.pushButton_3.setGeometry(QtCore.QRect(150, 400, 77, 24))
+        self.pushButton_3.setObjectName(_fromUtf8("pushButton_3"))
 
         # Boton 'limpiar'
         self.limpiarTextoButton = QtGui.QPushButton(self.centralwidget)
@@ -121,14 +125,15 @@ class MainWindow(object):
         self.pushButton.clicked.connect(self.graficar)
         self.pushButton_2.clicked.connect(self.mostrarAlgoritmo)
         self.limpiarTextoButton.clicked.connect(lambda: self.plainTextEdit.setPlainText(""))
-
+        self.pushButton_3.clicked.connect(self.analizarCodigo)
 
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
         self.label.setText(_translate("MainWindow", "Ingresar Ecuación de Recurrencia", None))
-        self.pushButton.setText(_translate("MainWindow", "Calcular", None))
-        self.pushButton_2.setText(_translate("MainWindow", "Graficar", None))
+        self.pushButton.setText(_translate("MainWindow", "Graficar", None))
+        self.pushButton_2.setText(_translate("MainWindow", "Abrir Archivo", None))
+        self.pushButton_3.setText(_translate("MainWindow", "Analizar", None))
         self.menuArchivo.setTitle(_translate("MainWindow", "Archivo", None))
         self.actionAbrir_archivo.setText(_translate("MainWindow", "Abrir archivo", None))
         self.actionSalir.setText(_translate("MainWindow", "Salir", None))
@@ -137,7 +142,7 @@ class MainWindow(object):
     def graficar(self):
         print("Graficando")
         operaciones = Operaciones()
-        operaciones.graficar()
+        operaciones.graficar(str(self.lineEdit.text()))
 
     def mostrarAlgoritmo(self):
 
@@ -145,11 +150,23 @@ class MainWindow(object):
 
         archivo = objArchivo.loadFile()
 
+
         if (archivo is None):
             gui.msgbox(title="Error", msg="Error al tratar de abrir el archivo: " + str(archivo))
-            QDialog
         else:
             self.plainTextEdit.setPlainText(archivo.read())
         print("Mostrando archivo...")
 
+        self.analizarArchivo(archivo)
 
+
+    def analizarArchivo(self, archivo):
+        analizador = Analizador()
+        analizador.test(archivo)
+
+
+    def analizarCodigo(self):
+        texto = self.plainTextEdit.toPlainText()
+
+        analizador = Analizador()
+        analizador.test(texto)
