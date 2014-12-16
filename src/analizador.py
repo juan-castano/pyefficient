@@ -33,6 +33,27 @@ class Analizador(object):
             print("\nSaliendo...\n")
             sys.exit()
 
+
+        if ('for' in archivo):
+            self.cant_sentencia_for += 1
+            self.mejor_caso['for'+ str(self.cant_sentencia_for)] = 'n'
+            self.peor_caso['for'+ str(self.cant_sentencia_for)] = 'n'
+
+        if ('if' in archivo):
+            self.cant_sentencia_if += 1
+            self.mejor_caso['if'+str(self.cant_sentencia_if)] = '0'
+            self.peor_caso['if'+str(self.cant_sentencia_if)] = '1'
+
+        if ('while' in archivo):
+            self.cant_sentencia_while += 1
+            self.mejor_caso['while'+str(self.cant_sentencia_while)] = '1'
+            self.peor_caso['while'+str(self.cant_sentencia_while)] = 'n'
+
+        if ('repeat' in archivo):
+            self.cant_sentencia_repeat += 1
+            self.mejor_caso['repeat'+str(self.cant_sentencia_repeat)] = '1'
+            self.peor_caso['repeat'+str(self.cant_sentencia_repeat)] = 'n'
+
         diccionario = { }
         diccionario['funciones'] = self.funciones
         diccionario['names'] = self.names
@@ -42,8 +63,13 @@ class Analizador(object):
         print(self.names)
         print(self.clases)
 
+        print("Peor caso")
         print(self.peor_caso)
+        print("Mejor caso")
         print(self.mejor_caso)
+
+
+        
 
         '''
         while True:
@@ -68,6 +94,14 @@ class Analizador(object):
                 print("\nSaliendo...\n")
                 sys.exit()
         '''
+
+
+    tokens = (
+        'NUMBER', 'NAME', 'LESSTHQ', 'GREATTHQ', 'NOTEQ', 'ASIGN',
+        'CALL', 'REPEAT', 'def', 'begin', 'end', 'TO', 'DO', 'UNTIL',
+        'THEN', 'AND', 'OR', 'T', 'F', 'NOT', 'FOR', 'WHILE', 'CLASS', 
+        'IF', 'ELSE',
+    )
 
 
     reserved = {
@@ -131,7 +165,8 @@ class Analizador(object):
 
     # @TOKEN(strings)
     def t_NAME(self, t):
-        r'[a-zA-Z_][a-zA-Z0-9_]*'
+        # r'[a-zA-Z_][a-zA-Z0-9_]*'
+        r'([a-zA-Z]+([a-zA-Z0-9_]*))'
         t.type = self.reserved.get(t.value, "NAME")
         return t
 
@@ -178,8 +213,7 @@ class Analizador(object):
 
 
     def p_statement(self, p):
-        """ statement : expression
-                    | stmnt """
+        """ statement : expression """
         # print("Expression")
         p[0] = p[1]
         # print(p[1])
@@ -238,15 +272,17 @@ class Analizador(object):
 
     def p_expression_grouping(self, p):
         """ expression_grouping : '(' expression ')'
-                        | '[' expression ']' 
-                        | '(' empty ')' """
+                        | '[' expression ']' """
+                        # | '(' empty ')' 
         print("Exp grouping")
         p[0] = p[2]
 
 
+    """
     def p_empty(self, p):
-        """ empty : """
+         empty : 
         pass
+    """
 
     def p_expression_comparission(self, p):
         """ expression : expression '<' expression
@@ -279,22 +315,22 @@ class Analizador(object):
         eval_str = "" % (p[1], oper, p[3])
         p[0] = eval(eval_str)
 
-    def p_stmnt_block(self, p):
-        """ stmnt_block : begin expression end """
+    def p_expression_block(self, p):
+        """ expression_block : begin expression end """
 
         print("block")
         pass
 
 
-    def p_stmnt_class(self, p):
-        """ stmnt : CLASS NAME stmnt_block """
+    def p_expression_class(self, p):
+        """ expression : CLASS NAME expression_block """
         print("class")
         pass
 
 
     cant_sentencia_for = 0
-    def p_stmnt_for(self, p):
-        """ stmnt : FOR NAME TO NUMBER DO stmnt_block """
+    def p_expression_for(self, p):
+        """ expression : FOR NAME TO NUMBER DO expression_block """
         print("for")
         self.cant_sentencia_for += 1
         self.peor_caso['for'+self.cant_sentencia_for] = 'n'
@@ -303,8 +339,8 @@ class Analizador(object):
 
 
     cant_sentencia_while = 0
-    def p_stmnt_while(self, p):
-        """ stmnt : WHILE '(' expression_boolean ')' DO stmnt_block """
+    def p_expression_while(self, p):
+        """ expression : WHILE '(' expression_boolean ')' DO expression_block """
         print("while")
         self.cant_sentencia_while += 1
         self.peor_caso['while'+self.cant_sentencia_while] = 'n'
@@ -312,43 +348,45 @@ class Analizador(object):
 
 
     cant_sentencia_repeat = 0
-    def p_stmnt_repeat(self, p):
-        """ stmnt : REPEAT stmnt_block UNTIL '(' expression_boolean ')' """
+    def p_expression_repeat(self, p):
+        """ expression : REPEAT expression_block UNTIL '(' expression_boolean ')' """
         print("repeat")
         self.peor_caso['repeat'+self.cant_sentencia_repeat] = 'n'
         self.mejor_caso['repeat'+self.cant_sentencia_repeat] = '1'
 
-    def p_stmnt_if(self, p):
-        """ stmnt : IF '(' expression_boolean ')' THEN stmnt_block
-                        |  IF '(' expression_boolean ')' THEN stmnt_block ELSE stmnt_block """
+
+    cant_sentencia_if = 0
+    def p_expression_if(self, p):
+        """ expression : IF '(' expression_boolean ')' THEN expression_block
+                        |  IF '(' expression_boolean ')' THEN expression_block ELSE expression_block """
         print("if")
 
 
-    def p_stmnt_call(self, p):
-        """ stmnt : CALL NAME '(' expression ')' """
+    def p_expression_call(self, p):
+        """ expression : CALL NAME '(' expression ')' """
         print("call")
 
 
-    def p_stmnt_subrutine(self, p):
-        """ stmnt : NAME '(' expression ')'  stmnt_block"""
+    def p_expression_subrutine(self, p):
+        """ expression : NAME '(' expression ')'  expression_block"""
         print("subrutine")
 
 
-    def p_stmnt_access_atributte(self, p):
+    def p_expression_access_atributte(self, p):
         """ """
         print("attibutte")
 
 
     """
     def p_expression_if(self, p):
-         stmnt : IF expression ':' expression
+         expression : IF expression ':' expression
                         | IF expression ':' expression ELSE expression
         print("if expression")
     """
 
 
-    def p_stmnt_def(self, p):
-        """ stmnt : def NAME expression_grouping stmnt_block """
+    def p_expression_def(self, p):
+        """ expression : def NAME expression_grouping expression_block """
         print("def function")
 
 
